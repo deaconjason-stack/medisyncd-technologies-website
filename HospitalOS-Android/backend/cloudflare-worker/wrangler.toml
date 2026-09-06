@@ -1,0 +1,10 @@
+name = "medisyncd-hospitalos-ai"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://appassets.androidplatform.net"
+# AI_PROVIDER = "anthropic"
+# ANTHROPIC_MODEL = "claude-sonnet-5"
+# OPENAI_MODEL = "gpt-5.6"
+# Set provider API keys and optional APP_TOKEN with Wrangler secrets.

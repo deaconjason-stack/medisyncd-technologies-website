@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com https://api.anthropic.com data: blob:;">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src https:; media-src 'self' data: blob: https:;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d2244"/>
   <title>MediSyncD HospitalOS v4.0 — Complete Suite | Domonique 2.0 | MediSyncD Technologies</title>
   <meta name="description" content="MediSyncD HospitalOS — Complete EHR, eMAR, eScripts, Clinical Orders, Lab, Radiology, Billing, HIPAA Compliance. Domonique 2.0 AI. MediSyncD Technologies, LLC."/>
-  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="vendor/react.production.min.js"></script>
+  <script src="vendor/react-dom.production.min.js"></script>
   <script>
   // Suppress Babel in-browser transformer warning (cosmetic only - app runs fine)
   (function(){
@@ -60,7 +61,7 @@ const {
 //          Readmission Risk, Sepsis Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const V = "4.0.0";
+const V = "4.1.0";
 
 // ─── PHARMACY INVENTORY DATA ───────────────────────────────────────────────────
 const SAMPLE_PHARMACY_INVENTORY = [{
@@ -547,64 +548,99 @@ function auditEntry(action, details = {}, userId = "SYSTEM") {
 }
 
 // ─── AI CORE ──────────────────────────────────────────────────────────────────
-const SYS_CLINICAL = `You are Domonique 2.0, the governing artificial intelligence of MediSyncD HospitalOS (${OWNER}, ${SIG}). You govern this platform entirely.
-GOVERNING PRINCIPLES:
-- You are the primary clinical intelligence — authoritative, thorough, evidence-based
-- Generate complete orders, notes, prescriptions, care plans ready for approval
-- One gate only: clinician one-click approval before execution — you govern everything else
-- Emergency situations: activate protocols, direct to 911 for life-threatening emergencies
-- Flag critical drug interactions — require pharmacist co-sign on highest-risk combinations
-- Your risk scores and predictions are governing intelligence outputs
-- Generate production-quality clinical documentation
-You govern. You lead. Clinician approves.`;
+const SYS_CLINICAL = \`You are Domonique 2.0, the clinical decision-support intelligence of MediSyncD HospitalOS (\${OWNER}, \${SIG}).
+CLINICAL SAFETY PRINCIPLES:
+- Provide evidence-based decision support; never present AI output as a substitute for licensed clinical judgment
+- Draft orders, notes, prescriptions, and care plans for licensed clinician review and authenticated approval before use
+- Never autonomously initiate, discontinue, or modify treatment, medication, or diagnosis
+- For life-threatening emergencies, direct users to activate the facility emergency response/code protocol and emergency services immediately
+- Flag critical drug interactions and contraindications for pharmacist/prescriber review
+- Treat risk scores as probabilistic aids, not clinical verdicts
+- Clearly identify uncertainty, missing data, and situations requiring escalation or specialist review
+- Generate concise, production-quality draft documentation while preserving human accountability
+Human clinicians remain responsible for assessment, diagnosis, orders, treatment, and final documentation.\`;
+
+function getAiEndpoint() {
+  let endpoint = "";
+  try {
+    if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.getAiEndpoint === "function") {
+      endpoint = String(window.MediSyncDAndroid.getAiEndpoint() || "").trim();
+    }
+  } catch (_e) {}
+  if (!endpoint) {
+    try { endpoint = String(localStorage.getItem("medisyncd_ai_endpoint") || "").trim(); } catch (_e) {}
+  }
+  if (!endpoint) throw new Error("Domonique 2.0 is not connected yet. Tap the Android ⚙ settings button and enter your secure AI gateway URL. API keys are intentionally not stored in this APK.");
+  if (!endpoint.startsWith("https://")) throw new Error("For security, the Domonique 2.0 gateway must use HTTPS.");
+  return endpoint;
+}
+function getAiGatewayToken() {
+  try {
+    if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.getAiToken === "function") {
+      return String(window.MediSyncDAndroid.getAiToken() || "");
+    }
+  } catch (_e) {}
+  return "";
+}
+function aiHeaders(accept) {
+  const h = { "Content-Type": "application/json", "Accept": accept };
+  const token = getAiGatewayToken();
+  if (token) h["X-MediSyncD-App-Token"] = token;
+  return h;
+}
+function assertAiNetwork() {
+  try {
+    if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.isOnline === "function" && !window.MediSyncDAndroid.isOnline()) {
+      throw new Error("Domonique 2.0 needs an internet connection for AI requests. The rest of HospitalOS remains available offline.");
+    }
+  } catch (e) {
+    if (e && e.message && e.message.includes("internet connection")) throw e;
+  }
+}
+function aiRequestBody(prompt, maxTokens, sys, stream) {
+  return {
+    model: "claude-sonnet-5",
+    max_tokens: maxTokens,
+    stream: !!stream,
+    system: sys || SYS_CLINICAL,
+    messages: [{ role: "user", content: prompt }],
+    client: "medisyncd-hospitalos-4.1"
+  };
+}
 async function aiClinical(prompt, maxTokens = 1200, sys = null) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  assertAiNetwork();
+  const res = await fetch(getAiEndpoint(), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "anthropic-dangerous-request-allowed": "true"
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: maxTokens,
-      system: sys || SYS_CLINICAL,
-      messages: [{
-        role: "user",
-        content: prompt
-      }]
-    })
+    headers: aiHeaders("application/json"),
+    body: JSON.stringify(aiRequestBody(prompt, maxTokens, sys, false))
   });
-  const d = await res.json();
-  if (d.error) throw new Error(d.error.message);
-  return d.content.map(b => b.text || "").join("");
+  const d = await res.json().catch(() => ({}));
+  if (!res.ok || d.error) throw new Error((d.error && (d.error.message || d.error)) || \`AI gateway error (\${res.status})\`);
+  if (Array.isArray(d.content)) return d.content.map(b => b.text || "").join("");
+  if (typeof d.output_text === "string") return d.output_text;
+  if (typeof d.text === "string") return d.text;
+  throw new Error("The AI gateway returned an unsupported response format.");
 }
 async function aiClinicalStream(prompt, onChunk, maxTokens = 1400, sys = null) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  assertAiNetwork();
+  const res = await fetch(getAiEndpoint(), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "text/event-stream",
-      "anthropic-dangerous-request-allowed": "true"
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: maxTokens,
-      stream: true,
-      system: sys || SYS_CLINICAL,
-      messages: [{
-        role: "user",
-        content: prompt
-      }]
-    })
+    headers: aiHeaders("application/json, text/event-stream"),
+    body: JSON.stringify(aiRequestBody(prompt, maxTokens, sys, true))
   });
   const ct = res.headers.get("content-type") || "";
+  if (!res.ok) {
+    const d = await res.json().catch(() => ({}));
+    throw new Error((d.error && (d.error.message || d.error)) || \`AI gateway error (\${res.status})\`);
+  }
   if (ct.includes("application/json")) {
     const d = await res.json();
-    if (d.error) throw new Error(d.error.message);
-    const text = d.content.map(b => b.text || "").join("");
-    for (let i = 0; i < text.length; i += 4) {
-      onChunk(text.slice(0, i + 4));
-      await new Promise(r => setTimeout(r, 8));
+    if (d.error) throw new Error(d.error.message || d.error);
+    const text = Array.isArray(d.content) ? d.content.map(b => b.text || "").join("") : (d.output_text || d.text || "");
+    if (!text) throw new Error("The AI gateway returned an empty response.");
+    for (let i = 0; i < text.length; i += 12) {
+      onChunk(text.slice(0, i + 12));
+      await new Promise(r => setTimeout(r, 4));
     }
     onChunk(text);
     return text;
@@ -613,24 +649,27 @@ async function aiClinicalStream(prompt, onChunk, maxTokens = 1400, sys = null) {
   const dec = new TextDecoder();
   let full = "";
   while (true) {
-    const {
-      done,
-      value
-    } = await reader.read();
+    const { done, value } = await reader.read();
     if (done) break;
-    const chunk = dec.decode(value);
+    const chunk = dec.decode(value, {stream:true});
     chunk.split("\n").forEach(function (line) {
       if (line.startsWith("data:")) {
         try {
-          var d2 = JSON.parse(line.slice(5).trim());
+          const raw = line.slice(5).trim();
+          if (!raw || raw === "[DONE]") return;
+          const d2 = JSON.parse(raw);
           if (d2.type === "content_block_delta" && d2.delta && d2.delta.text) {
             full += d2.delta.text;
+            onChunk(full);
+          } else if (d2.delta && typeof d2.delta === "string") {
+            full += d2.delta;
             onChunk(full);
           }
         } catch (_e) {}
       }
     });
   }
+  if (!full) throw new Error("The AI gateway stream ended without content.");
   return full;
 }
 
@@ -7496,13 +7535,19 @@ function AuditLog({
   const [filter, setFilter] = useState("");
   const filtered = filter ? ledger.filter(e => JSON.stringify(e).toLowerCase().includes(filter.toLowerCase())) : ledger;
   const dl = () => {
-    const b = new Blob([JSON.stringify(ledger, null, 2)], {
-      type: "application/json"
-    });
+    const filename = \`hospital-audit-\${Date.now()}.json\`;
+    const text = JSON.stringify(ledger, null, 2);
+    try {
+      if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.saveTextFile === "function") {
+        window.MediSyncDAndroid.saveTextFile(filename, text, "application/json");
+        return;
+      }
+    } catch (_e) {}
+    const b = new Blob([text], { type: "application/json" });
     const u = URL.createObjectURL(b);
     const a = document.createElement("a");
     a.href = u;
-    a.download = `hospital-audit-${Date.now()}.json`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
