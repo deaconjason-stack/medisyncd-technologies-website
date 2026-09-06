@@ -1,0 +1,39 @@
+name: Build HospitalOS APK
+
+on:
+  push:
+    branches: [ hospitalos-apk-build-v4-0-0 ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: HospitalOS-Android
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Build debug APK
+        run: gradle assembleDebug --stacktrace
+      - name: Rename APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk MediSyncD-HospitalOS-v4.0.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MediSyncD-HospitalOS-v4.0-APK
+          path: HospitalOS-Android/MediSyncD-HospitalOS-v4.0.apk
+          if-no-files-found: error
