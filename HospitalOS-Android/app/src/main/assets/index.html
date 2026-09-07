@@ -5,7 +5,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src https:; media-src 'self' data: blob: https:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#0d2244"/>
-  <title>MediSyncD HospitalOS v4.0 — Complete Suite | Domonique 2.0 | MediSyncD Technologies</title>
+  <title>MediSyncD HospitalOS v4.2 — Complete Suite | Domonique 2.0 | MediSyncD Technologies</title>
   <meta name="description" content="MediSyncD HospitalOS — Complete EHR, eMAR, eScripts, Clinical Orders, Lab, Radiology, Billing, HIPAA Compliance. Domonique 2.0 AI. MediSyncD Technologies, LLC."/>
   <script src="vendor/react.production.min.js"></script>
   <script src="vendor/react-dom.production.min.js"></script>
@@ -36,7 +36,7 @@
   <div id="loading-screen">
     <div class="logo">🏥</div>
     <div class="title">MediSyncD HospitalOS</div>
-    <div class="sub">v4.0 Complete Suite · Domonique 2.0 · 103 Modules · All Systems Initializing…</div>
+    <div class="sub">v4.2 Complete Suite · Domonique 2.0 · 103 Modules · All Systems Initializing…</div>
     <div class="bar-wrap"><div class="bar-inner"></div></div>
     <div class="note">MediSyncD Technologies · Deacon Jason Allen Henderson</div>
   </div>
@@ -61,7 +61,7 @@ const {
 //          Readmission Risk, Sepsis Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const V = "4.1.0";
+const V = "4.2.0";
 
 // ─── PHARMACY INVENTORY DATA ───────────────────────────────────────────────────
 const SAMPLE_PHARMACY_INVENTORY = [{
@@ -560,7 +560,20 @@ CLINICAL SAFETY PRINCIPLES:
 - Generate concise, production-quality draft documentation while preserving human accountability
 Human clinicians remain responsible for assessment, diagnosis, orders, treatment, and final documentation.\`;
 
-function getAiEndpoint() {
+const _nativeAiPending = new Map();
+window.__medisyncdAiResolve = function(id, text) {
+  const p = _nativeAiPending.get(id);
+  if (!p) return;
+  _nativeAiPending.delete(id);
+  p.resolve(String(text || ""));
+};
+window.__medisyncdAiReject = function(id, message) {
+  const p = _nativeAiPending.get(id);
+  if (!p) return;
+  _nativeAiPending.delete(id);
+  p.reject(new Error(String(message || "AI request failed.")));
+};
+function maybeAiEndpoint() {
   let endpoint = "";
   try {
     if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.getAiEndpoint === "function") {
@@ -570,8 +583,6 @@ function getAiEndpoint() {
   if (!endpoint) {
     try { endpoint = String(localStorage.getItem("medisyncd_ai_endpoint") || "").trim(); } catch (_e) {}
   }
-  if (!endpoint) throw new Error("Domonique 2.0 is not connected yet. Tap the Android ⚙ settings button and enter your secure AI gateway URL. API keys are intentionally not stored in this APK.");
-  if (!endpoint.startsWith("https://")) throw new Error("For security, the Domonique 2.0 gateway must use HTTPS.");
   return endpoint;
 }
 function getAiGatewayToken() {
@@ -582,95 +593,107 @@ function getAiGatewayToken() {
   } catch (_e) {}
   return "";
 }
-function aiHeaders(accept) {
-  const h = { "Content-Type": "application/json", "Accept": accept };
-  const token = getAiGatewayToken();
-  if (token) h["X-MediSyncD-App-Token"] = token;
-  return h;
+function hasNativeOpenAI() {
+  try {
+    return !!(window.MediSyncDAndroid &&
+      typeof window.MediSyncDAndroid.hasOpenAiKey === "function" &&
+      window.MediSyncDAndroid.hasOpenAiKey());
+  } catch (_e) {
+    return false;
+  }
 }
 function assertAiNetwork() {
   try {
-    if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.isOnline === "function" && !window.MediSyncDAndroid.isOnline()) {
-      throw new Error("Domonique 2.0 needs an internet connection for AI requests. The rest of HospitalOS remains available offline.");
+    if (window.MediSyncDAndroid &&
+        typeof window.MediSyncDAndroid.isOnline === "function" &&
+        !window.MediSyncDAndroid.isOnline()) {
+      throw new Error("Domonique 2.0 needs an internet connection for AI requests. HospitalOS local records and tools remain available offline.");
     }
   } catch (e) {
     if (e && e.message && e.message.includes("internet connection")) throw e;
   }
 }
-function aiRequestBody(prompt, maxTokens, sys, stream) {
+function nativeAiClinical(prompt, maxTokens, sys) {
+  return new Promise((resolve, reject) => {
+    const id = "ai_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2);
+    _nativeAiPending.set(id, { resolve, reject });
+    const timer = setTimeout(() => {
+      if (_nativeAiPending.has(id)) {
+        _nativeAiPending.delete(id);
+        reject(new Error("AI request timed out. Check your connection and API billing/limits."));
+      }
+    }, 95000);
+    _nativeAiPending.set(id, {
+      resolve: text => { clearTimeout(timer); resolve(text); },
+      reject: err => { clearTimeout(timer); reject(err); }
+    });
+    try {
+      window.MediSyncDAndroid.requestOpenAI(
+        id,
+        String(prompt || ""),
+        Number(maxTokens || 1200),
+        String(sys || SYS_CLINICAL)
+      );
+    } catch (e) {
+      clearTimeout(timer);
+      _nativeAiPending.delete(id);
+      reject(e);
+    }
+  });
+}
+function gatewayHeaders() {
+  const h = { "Content-Type": "application/json", "Accept": "application/json" };
+  const token = getAiGatewayToken();
+  if (token) h["X-MediSyncD-App-Token"] = token;
+  return h;
+}
+function gatewayBody(prompt, maxTokens, sys) {
   return {
-    model: "claude-sonnet-5",
+    model: "gpt-5.6-sol",
     max_tokens: maxTokens,
-    stream: !!stream,
+    stream: false,
     system: sys || SYS_CLINICAL,
     messages: [{ role: "user", content: prompt }],
-    client: "medisyncd-hospitalos-4.1"
+    client: "medisyncd-hospitalos-4.2"
   };
 }
-async function aiClinical(prompt, maxTokens = 1200, sys = null) {
-  assertAiNetwork();
-  const res = await fetch(getAiEndpoint(), {
+async function gatewayAiClinical(endpoint, prompt, maxTokens, sys) {
+  if (!endpoint.startsWith("https://")) throw new Error("For security, the Domonique 2.0 gateway must use HTTPS.");
+  const res = await fetch(endpoint, {
     method: "POST",
-    headers: aiHeaders("application/json"),
-    body: JSON.stringify(aiRequestBody(prompt, maxTokens, sys, false))
+    headers: gatewayHeaders(),
+    body: JSON.stringify(gatewayBody(prompt, maxTokens, sys))
   });
   const d = await res.json().catch(() => ({}));
-  if (!res.ok || d.error) throw new Error((d.error && (d.error.message || d.error)) || \`AI gateway error (\${res.status})\`);
+  if (!res.ok || d.error) {
+    throw new Error((d.error && (d.error.message || d.error)) || \`AI gateway error (\${res.status})\`);
+  }
   if (Array.isArray(d.content)) return d.content.map(b => b.text || "").join("");
   if (typeof d.output_text === "string") return d.output_text;
   if (typeof d.text === "string") return d.text;
+  if (Array.isArray(d.output)) {
+    return d.output.flatMap(o => Array.isArray(o.content) ? o.content : [])
+      .map(c => c.text || "").join("");
+  }
   throw new Error("The AI gateway returned an unsupported response format.");
 }
-async function aiClinicalStream(prompt, onChunk, maxTokens = 1400, sys = null) {
+async function aiClinical(prompt, maxTokens = 1200, sys = null) {
   assertAiNetwork();
-  const res = await fetch(getAiEndpoint(), {
-    method: "POST",
-    headers: aiHeaders("application/json, text/event-stream"),
-    body: JSON.stringify(aiRequestBody(prompt, maxTokens, sys, true))
-  });
-  const ct = res.headers.get("content-type") || "";
-  if (!res.ok) {
-    const d = await res.json().catch(() => ({}));
-    throw new Error((d.error && (d.error.message || d.error)) || \`AI gateway error (\${res.status})\`);
+  const endpoint = maybeAiEndpoint();
+  if (endpoint) return gatewayAiClinical(endpoint, prompt, maxTokens, sys);
+  if (hasNativeOpenAI()) return nativeAiClinical(prompt, maxTokens, sys);
+  throw new Error("Domonique 2.0 is not connected yet. Tap the Android ⚙ button, then add your OpenAI API key or a secure AI gateway URL.");
+}
+async function aiClinicalStream(prompt, onChunk, maxTokens = 1400, sys = null) {
+  const text = await aiClinical(prompt, maxTokens, sys);
+  if (!text) return "";
+  const step = Math.max(8, Math.ceil(text.length / 120));
+  for (let i = 0; i < text.length; i += step) {
+    onChunk(text.slice(0, Math.min(text.length, i + step)));
+    await new Promise(r => setTimeout(r, 3));
   }
-  if (ct.includes("application/json")) {
-    const d = await res.json();
-    if (d.error) throw new Error(d.error.message || d.error);
-    const text = Array.isArray(d.content) ? d.content.map(b => b.text || "").join("") : (d.output_text || d.text || "");
-    if (!text) throw new Error("The AI gateway returned an empty response.");
-    for (let i = 0; i < text.length; i += 12) {
-      onChunk(text.slice(0, i + 12));
-      await new Promise(r => setTimeout(r, 4));
-    }
-    onChunk(text);
-    return text;
-  }
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
-  let full = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    const chunk = dec.decode(value, {stream:true});
-    chunk.split("\n").forEach(function (line) {
-      if (line.startsWith("data:")) {
-        try {
-          const raw = line.slice(5).trim();
-          if (!raw || raw === "[DONE]") return;
-          const d2 = JSON.parse(raw);
-          if (d2.type === "content_block_delta" && d2.delta && d2.delta.text) {
-            full += d2.delta.text;
-            onChunk(full);
-          } else if (d2.delta && typeof d2.delta === "string") {
-            full += d2.delta;
-            onChunk(full);
-          }
-        } catch (_e) {}
-      }
-    });
-  }
-  if (!full) throw new Error("The AI gateway stream ended without content.");
-  return full;
+  onChunk(text);
+  return text;
 }
 
 // ─── SAMPLE DATA ──────────────────────────────────────────────────────────────
@@ -8247,30 +8270,50 @@ function SlackNotifications({
   const [log, setLog] = React.useState(() => DB.get("slack:log") || SLACK_LOG);
   const t = _theme;
   const sendSlack = (channel, message, type) => {
-    const entry = {
-      id: "SL" + Date.now(),
-      ts: new Date().toISOString(),
-      channel,
-      type,
-      message
-    };
+    if (!connected) {
+      toast("Enable Slack sharing first", "warn");
+      return;
+    }
+    try {
+      if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.shareToSlack === "function") {
+        const opened = window.MediSyncDAndroid.shareToSlack(channel, message);
+        if (!opened) {
+          toast("Unable to open Android sharing.", "error");
+          return;
+        }
+        const entry = { id: "SL" + Date.now(), ts: new Date().toISOString(), channel, type, message };
+        const u = [entry, ...log].slice(0, 100);
+        setLog(u);
+        DB.set("slack:log", u);
+        addAudit("SLACK_SHARE_OPENED", { channel, type });
+        toast("💬 Slack share opened — review and send the message.", "success");
+        return;
+      }
+    } catch (e) {
+      toast("Slack sharing failed: " + e.message, "error");
+      return;
+    }
+    const entry = { id: "SL" + Date.now(), ts: new Date().toISOString(), channel, type, message };
     const u = [entry, ...log].slice(0, 100);
     setLog(u);
     DB.set("slack:log", u);
-    addAudit("SLACK_NOTIFICATION_SENT", {
-      channel,
-      type
-    });
-    toast("💬 Slack → " + channel + ": notification sent", "success");
+    addAudit("SLACK_DEMO_LOGGED", { channel, type });
+    toast("💬 Web demo notification logged.", "info");
   };
   const connectSlack = () => {
-    const token = prompt("Simulate Slack Setup:\\nEnter Bot Token", "xoxb-demo-token");
-    if (token) {
-      setConnected(true);
-      DB.set("slack:connected", true);
-      addAudit("SLACK_CONNECTED", {});
-      toast("✅ Slack connected!", "success");
-    }
+    try {
+      if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.shareToSlack === "function") {
+        setConnected(true);
+        DB.set("slack:connected", true);
+        addAudit("SLACK_ANDROID_READY", {});
+        toast("✅ Slack sharing ready through Android.", "success");
+        return;
+      }
+    } catch (_e) {}
+    setConnected(true);
+    DB.set("slack:connected", true);
+    addAudit("SLACK_DEMO_READY", {});
+    toast("Slack web demo mode enabled.", "info");
   };
   const testAdmission = () => {
     const p = patients[0];
@@ -8294,7 +8337,7 @@ function SlackNotifications({
   }, /*#__PURE__*/React.createElement(SecHead, {
     title: "Slack Notification Center",
     icon: "💬",
-    subtitle: "Real-time Slack alerts · Admissions · Critical labs · Bed capacity"
+    subtitle: "Android Slack sharing · Admissions · Critical labs · Bed capacity"
   }), /*#__PURE__*/React.createElement(Card, {
     style: {
       marginBottom: 16,
@@ -8322,12 +8365,12 @@ function SlackNotifications({
       fontSize: 15,
       color: connected ? "#15803d" : "#7e22ce"
     }
-  }, connected ? "Slack Connected" : "Connect Slack Workspace"), /*#__PURE__*/React.createElement("div", {
+  }, connected ? "Slack Sharing Ready" : "Enable Slack Sharing"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12.5,
       color: t.textMuted
     }
-  }, connected ? log.length + " notifications sent" : "Connect to send automatic alerts")), connected ? /*#__PURE__*/React.createElement("span", {
+  }, connected ? log.length + " Slack shares opened" : "Enable sharing through the Slack app")), connected ? /*#__PURE__*/React.createElement("span", {
     className: "badge",
     style: {
       background: "#22c55e18",
@@ -8908,7 +8951,7 @@ function AICommandCenter({
 }) {
   const [messages, setMessages] = React.useState([{
     role: "assistant",
-    content: "I am Domonique 2.0, the governing intelligence of MediSyncD HospitalOS v4.0. How can I assist you today?"
+    content: "I am Domonique 2.0, the clinical decision-support intelligence of MediSyncD HospitalOS v4.2. I can help draft, analyze, and explain while keeping licensed clinicians responsible for final decisions."
   }]);
   const [input, setInput] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -10915,7 +10958,7 @@ function App() {
       },
       hash: "system"
     }, ...p]);
-    toast("🏥 MediSyncD HospitalOS v4.0 — Complete Suite online · " + MODULES_HAAS.length + " modules active · Domonique 2.0 Governing AI", "success");
+    toast("🏥 MediSyncD HospitalOS v4.2 — Complete Suite online · " + MODULES_HAAS.length + " modules active · Domonique 2.0 Clinical AI", "success");
     setTimeout(() => {
       const ls = SAMPLE_PHARMACY_INVENTORY.filter(m => m.stock <= m.reorderAt);
       if (ls.length > 0) toast("🔔 PHARMACY ALERT: " + ls.length + " medications below reorder threshold", "warn");
@@ -11597,7 +11640,7 @@ function App() {
     style: {
       color: t.accent
     }
-  }, "MediSyncD HospitalOS v", V), " · v4.0 Complete Suite · 103 Modules across 8 departments · ", OWNER, " · ", SIG), /*#__PURE__*/React.createElement("span", null, "Domonique 2.0 SI AGI · ", MODULES_HAAS.length, " Clinical Modules · ", patients.length, " Patients · ", ledger.length, " Audit Events"), /*#__PURE__*/React.createElement("span", {
+  }, "MediSyncD HospitalOS v", V), " · v4.2 Complete Suite · 103 Modules across 8 departments · ", OWNER, " · ", SIG), /*#__PURE__*/React.createElement("span", null, "Domonique 2.0 SI AGI · ", MODULES_HAAS.length, " Clinical Modules · ", patients.length, " Patients · ", ledger.length, " Audit Events"), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: "'IBM Plex Mono',monospace"
     }
@@ -11945,55 +11988,78 @@ function GoogleCalendarSync({
   const t = _theme;
   const APPT_TYPES = ["Follow-up", "New Patient", "Cardiology", "Nephrology", "Surgical Follow-up", "Telemedicine", "Procedure", "Consult", "Annual Physical"];
   const connectGCal = () => {
-    // Simulate OAuth flow — in production, triggers Google OAuth
-    const id = prompt("Simulate Google Calendar Setup: Enter your Google Calendar ID (e.g. primary or your.email@gmail.com)", "primary");
+    try {
+      if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.addCalendarEvent === "function") {
+        setCalendarId("Android Calendar");
+        setGcalConnected(true);
+        DB.set("gcal:connected", true);
+        DB.set("gcal:calendarId", "Android Calendar");
+        addAudit("GCAL_ANDROID_READY", {});
+        toast("✅ Android Calendar ready. Each appointment opens in your calendar for confirmation.", "success");
+        return;
+      }
+    } catch (_e) {}
+    const id = prompt("Web demo calendar ID", "primary");
     if (id) {
       setCalendarId(id);
       setGcalConnected(true);
       DB.set("gcal:connected", true);
       DB.set("gcal:calendarId", id);
-      addAudit("GCAL_CONNECTED", {
-        calendarId: id
-      });
-      toast("✅ Google Calendar connected! Appointments will auto-sync.", "success");
+      addAudit("GCAL_DEMO_CONNECTED", { calendarId: id });
+      toast("Calendar demo mode enabled.", "info");
     }
   };
   const syncAppointment = appt => {
     if (!gcalConnected) {
-      toast("Connect Google Calendar first", "warn");
+      toast("Enable Calendar first", "warn");
       return;
     }
-    const fakeEventId = "gcal_" + Math.random().toString(36).slice(2, 10);
-    const u = appointments.map(a => a.id === appt.id ? {
-      ...a,
-      gcalSynced: true,
-      gcalEventId: fakeEventId
-    } : a);
+    try {
+      if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.addCalendarEvent === "function") {
+        const opened = window.MediSyncDAndroid.addCalendarEvent(JSON.stringify(appt));
+        if (!opened) {
+          toast("No calendar app is available on this device.", "error");
+          return;
+        }
+        const eventId = "android_calendar_" + Date.now().toString(36);
+        const u = appointments.map(a => a.id === appt.id ? {
+          ...a,
+          gcalSynced: true,
+          gcalEventId: eventId
+        } : a);
+        setAppointments(u);
+        DB.set("appointments", u);
+        addAudit("CALENDAR_HANDOFF_OPENED", { apptId: appt.id, doctorId: appt.doctorId });
+        toast("📅 Calendar event opened — review it and tap Save in your calendar app.", "success");
+        return;
+      }
+    } catch (e) {
+      toast("Calendar handoff failed: " + e.message, "error");
+      return;
+    }
+    const fakeEventId = "demo_gcal_" + Math.random().toString(36).slice(2, 10);
+    const u = appointments.map(a => a.id === appt.id ? {...a, gcalSynced: true, gcalEventId: fakeEventId} : a);
     setAppointments(u);
     DB.set("appointments", u);
-    addAudit("GCAL_EVENT_CREATED", {
-      apptId: appt.id,
-      doctorId: appt.doctorId,
-      eventId: fakeEventId
-    });
-    toast(`📅 Event synced to Google Calendar for ${appt.doctorName}`, "success");
+    addAudit("GCAL_DEMO_EVENT", { apptId: appt.id, eventId: fakeEventId });
+    toast("📅 Web demo event marked synced.", "info");
   };
   const syncAll = () => {
     if (!gcalConnected) {
-      toast("Connect Google Calendar first", "warn");
+      toast("Enable Calendar first", "warn");
       return;
     }
-    const u = appointments.map(a => ({
-      ...a,
-      gcalSynced: true,
-      gcalEventId: a.gcalEventId || "gcal_" + Math.random().toString(36).slice(2, 10)
-    }));
+    try {
+      if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.addCalendarEvent === "function") {
+        toast("For privacy and accuracy, Android asks you to confirm each calendar event. Use Sync on each appointment.", "info");
+        return;
+      }
+    } catch (_e) {}
+    const u = appointments.map(a => ({...a, gcalSynced: true, gcalEventId: a.gcalEventId || "demo_gcal_" + Math.random().toString(36).slice(2, 10)}));
     setAppointments(u);
     DB.set("appointments", u);
-    addAudit("GCAL_BULK_SYNC", {
-      count: u.length
-    });
-    toast(`📅 All ${u.length} appointments synced to Google Calendar`, "success");
+    addAudit("GCAL_DEMO_BULK_SYNC", { count: u.length });
+    toast(\`📅 \${u.length} demo appointments marked synced\`, "info");
   };
   const scheduleAppt = () => {
     if (!form.patientName || !form.date) {

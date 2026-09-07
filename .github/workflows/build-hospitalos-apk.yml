@@ -1,8 +1,8 @@
-name: Build HospitalOS v4.1 APK
+name: Build HospitalOS v4.2 APK
 
 on:
   push:
-    branches: [ hospitalos-apk-build-v4-1-0 ]
+    branches: [ hospitalos-apk-build-v4-2-0 ]
   workflow_dispatch:
 
 jobs:
@@ -29,24 +29,28 @@ jobs:
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Build debug APK
         run: gradle assembleDebug --stacktrace
-      - name: Verify APK
+      - name: Verify APK metadata
         run: |
           AAPT="$ANDROID_HOME/build-tools/36.0.0/aapt"
           "$AAPT" dump badging app/build/outputs/apk/debug/app-debug.apk | grep -E "package:|targetSdkVersion|application-label"
+      - name: Verify bundled HospitalOS
+        run: |
+          unzip -l app/build/outputs/apk/debug/app-debug.apk | grep "assets/index.html"
+          unzip -l app/build/outputs/apk/debug/app-debug.apk | grep "assets/vendor/react.production.min.js"
       - name: Package outputs
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk MediSyncD-HospitalOS-v4.1.apk
+          cp app/build/outputs/apk/debug/app-debug.apk MediSyncD-HospitalOS-v4.2.apk
           cd ..
-          zip -qr MediSyncD-HospitalOS-v4.1-Android-Source.zip HospitalOS-Android -x '*/build/*'
+          zip -qr MediSyncD-HospitalOS-v4.2-Android-Source.zip HospitalOS-Android -x '*/build/*'
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MediSyncD-HospitalOS-v4.1-APK
-          path: HospitalOS-Android/MediSyncD-HospitalOS-v4.1.apk
+          name: MediSyncD-HospitalOS-v4.2-APK
+          path: HospitalOS-Android/MediSyncD-HospitalOS-v4.2.apk
           if-no-files-found: error
       - name: Upload source
         uses: actions/upload-artifact@v4
         with:
-          name: MediSyncD-HospitalOS-v4.1-Android-Source
-          path: MediSyncD-HospitalOS-v4.1-Android-Source.zip
+          name: MediSyncD-HospitalOS-v4.2-Android-Source
+          path: MediSyncD-HospitalOS-v4.2-Android-Source.zip
           if-no-files-found: error
