@@ -5,7 +5,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src https:; media-src 'self' data: blob: https:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#0d2244"/>
-  <title>MediSyncD HospitalOS v4.2 — Complete Suite | Domonique 2.0 | MediSyncD Technologies</title>
+  <title>MediSyncD HospitalOS v4.2.1 — Complete Suite | Domonique 2.0 | MediSyncD Technologies</title>
   <meta name="description" content="MediSyncD HospitalOS — Complete EHR, eMAR, eScripts, Clinical Orders, Lab, Radiology, Billing, HIPAA Compliance. Domonique 2.0 AI. MediSyncD Technologies, LLC."/>
   <script src="vendor/react.production.min.js"></script>
   <script src="vendor/react-dom.production.min.js"></script>
@@ -36,7 +36,7 @@
   <div id="loading-screen">
     <div class="logo">🏥</div>
     <div class="title">MediSyncD HospitalOS</div>
-    <div class="sub">v4.2 Complete Suite · Domonique 2.0 · 103 Modules · All Systems Initializing…</div>
+    <div class="sub">v4.2.1 Complete Suite · Domonique 2.0 · 103 Modules · All Systems Initializing…</div>
     <div class="bar-wrap"><div class="bar-inner"></div></div>
     <div class="note">MediSyncD Technologies · Deacon Jason Allen Henderson</div>
   </div>
@@ -61,7 +61,7 @@ const {
 //          Readmission Risk, Sepsis Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const V = "4.2.0";
+const V = "4.2.1";
 
 // ─── PHARMACY INVENTORY DATA ───────────────────────────────────────────────────
 const SAMPLE_PHARMACY_INVENTORY = [{
@@ -548,7 +548,7 @@ function auditEntry(action, details = {}, userId = "SYSTEM") {
 }
 
 // ─── AI CORE ──────────────────────────────────────────────────────────────────
-const SYS_CLINICAL = \`You are Domonique 2.0, the clinical decision-support intelligence of MediSyncD HospitalOS (\${OWNER}, \${SIG}).
+const SYS_CLINICAL = `You are Domonique 2.0, the clinical decision-support intelligence of MediSyncD HospitalOS (${OWNER}, ${SIG}).
 CLINICAL SAFETY PRINCIPLES:
 - Provide evidence-based decision support; never present AI output as a substitute for licensed clinical judgment
 - Draft orders, notes, prescriptions, and care plans for licensed clinician review and authenticated approval before use
@@ -558,7 +558,7 @@ CLINICAL SAFETY PRINCIPLES:
 - Treat risk scores as probabilistic aids, not clinical verdicts
 - Clearly identify uncertainty, missing data, and situations requiring escalation or specialist review
 - Generate concise, production-quality draft documentation while preserving human accountability
-Human clinicians remain responsible for assessment, diagnosis, orders, treatment, and final documentation.\`;
+Human clinicians remain responsible for assessment, diagnosis, orders, treatment, and final documentation.`;
 
 const _nativeAiPending = new Map();
 window.__medisyncdAiResolve = function(id, text) {
@@ -666,7 +666,7 @@ async function gatewayAiClinical(endpoint, prompt, maxTokens, sys) {
   });
   const d = await res.json().catch(() => ({}));
   if (!res.ok || d.error) {
-    throw new Error((d.error && (d.error.message || d.error)) || \`AI gateway error (\${res.status})\`);
+    throw new Error((d.error && (d.error.message || d.error)) || `AI gateway error (${res.status})`);
   }
   if (Array.isArray(d.content)) return d.content.map(b => b.text || "").join("");
   if (typeof d.output_text === "string") return d.output_text;
@@ -7558,7 +7558,7 @@ function AuditLog({
   const [filter, setFilter] = useState("");
   const filtered = filter ? ledger.filter(e => JSON.stringify(e).toLowerCase().includes(filter.toLowerCase())) : ledger;
   const dl = () => {
-    const filename = \`hospital-audit-\${Date.now()}.json\`;
+    const filename = `hospital-audit-${Date.now()}.json`;
     const text = JSON.stringify(ledger, null, 2);
     try {
       if (window.MediSyncDAndroid && typeof window.MediSyncDAndroid.saveTextFile === "function") {
@@ -8951,7 +8951,7 @@ function AICommandCenter({
 }) {
   const [messages, setMessages] = React.useState([{
     role: "assistant",
-    content: "I am Domonique 2.0, the clinical decision-support intelligence of MediSyncD HospitalOS v4.2. I can help draft, analyze, and explain while keeping licensed clinicians responsible for final decisions."
+    content: "I am Domonique 2.0, the clinical decision-support intelligence of MediSyncD HospitalOS v4.2.1. I can help draft, analyze, and explain while keeping licensed clinicians responsible for final decisions."
   }]);
   const [input, setInput] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -10958,7 +10958,7 @@ function App() {
       },
       hash: "system"
     }, ...p]);
-    toast("🏥 MediSyncD HospitalOS v4.2 — Complete Suite online · " + MODULES_HAAS.length + " modules active · Domonique 2.0 Clinical AI", "success");
+    toast("🏥 MediSyncD HospitalOS v4.2.1 — Complete Suite online · " + MODULES_HAAS.length + " modules active · Domonique 2.0 Clinical AI", "success");
     setTimeout(() => {
       const ls = SAMPLE_PHARMACY_INVENTORY.filter(m => m.stock <= m.reorderAt);
       if (ls.length > 0) toast("🔔 PHARMACY ALERT: " + ls.length + " medications below reorder threshold", "warn");
@@ -11640,7 +11640,7 @@ function App() {
     style: {
       color: t.accent
     }
-  }, "MediSyncD HospitalOS v", V), " · v4.2 Complete Suite · 103 Modules across 8 departments · ", OWNER, " · ", SIG), /*#__PURE__*/React.createElement("span", null, "Domonique 2.0 SI AGI · ", MODULES_HAAS.length, " Clinical Modules · ", patients.length, " Patients · ", ledger.length, " Audit Events"), /*#__PURE__*/React.createElement("span", {
+  }, "MediSyncD HospitalOS v", V), " · v4.2.1 Complete Suite · 103 Modules across 8 departments · ", OWNER, " · ", SIG), /*#__PURE__*/React.createElement("span", null, "Domonique 2.0 SI AGI · ", MODULES_HAAS.length, " Clinical Modules · ", patients.length, " Patients · ", ledger.length, " Audit Events"), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: "'IBM Plex Mono',monospace"
     }
@@ -12059,7 +12059,7 @@ function GoogleCalendarSync({
     setAppointments(u);
     DB.set("appointments", u);
     addAudit("GCAL_DEMO_BULK_SYNC", { count: u.length });
-    toast(\`📅 \${u.length} demo appointments marked synced\`, "info");
+    toast(`📅 ${u.length} demo appointments marked synced`, "info");
   };
   const scheduleAppt = () => {
     if (!form.patientName || !form.date) {

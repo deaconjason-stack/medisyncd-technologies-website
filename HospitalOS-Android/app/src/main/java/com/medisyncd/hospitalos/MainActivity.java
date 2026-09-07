@@ -193,7 +193,7 @@ public class MainActivity extends Activity {
         settings.setMediaPlaybackRequiresUserGesture(true);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        settings.setUserAgentString(settings.getUserAgentString() + " MediSyncD-HospitalOS/4.2.0");
+        settings.setUserAgentString(settings.getUserAgentString() + " MediSyncD-HospitalOS/4.2.1");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) settings.setSafeBrowsingEnabled(true);
 
         CookieManager.getInstance().setAcceptCookie(true);
@@ -355,7 +355,7 @@ public class MainActivity extends Activity {
         } else {
             aiStatus = "⚠ AI: not configured";
         }
-        status.setText("MediSyncD HospitalOS v4.2\n" + aiStatus + "\nCalendar: Android handoff ready\nSlack: Android sharing ready");
+        status.setText("MediSyncD HospitalOS v4.2.1\n" + aiStatus + "\nCalendar: Android handoff ready\nSlack: Android sharing ready");
         status.setTextSize(14);
         status.setPadding(0, 0, 0, dp(12));
         box.addView(status);
@@ -827,7 +827,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public String getAiToken() { return prefs.getString(KEY_AI_TOKEN, ""); }
         @JavascriptInterface public boolean hasOpenAiKey() { return MainActivity.this.hasOpenAiKey(); }
         @JavascriptInterface public boolean isOnline() { return MainActivity.this.isOnline(); }
-        @JavascriptInterface public String getAppVersion() { return "4.2.0"; }
+        @JavascriptInterface public String getAppVersion() { return "4.2.1"; }
         @JavascriptInterface public void openSettings() { runOnUiThread(() -> showSettingsDialog()); }
         @JavascriptInterface public void saveTextFile(String filename, String text, String mime) {
             runOnUiThread(() -> saveTextWithPicker(filename, text, mime));

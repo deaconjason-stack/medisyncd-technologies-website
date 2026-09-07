@@ -1,6 +1,6 @@
-# MediSyncD HospitalOS Android v4.2
+# MediSyncD HospitalOS Android v4.2.1
 
-v4.2 is the complete standalone Android build of the current HospitalOS application.
+v4.2.1 is the complete standalone Android build of the current HospitalOS application.
 
 Working Android features:
 - 103-module HospitalOS interface preserved.
