@@ -1,0 +1,80 @@
+name: Build The Last Goodbye Android Memorial Edition
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/build-the-last-goodbye-android.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Restore Android project
+        shell: bash
+        run: |
+          rm -rf mobile/TheLastGoodbyeAndroid
+          mkdir -p mobile/TheLastGoodbyeAndroid
+          cat             .bootstrap/tlg-part-01.b64             .bootstrap/tlg-part-02.b64             .bootstrap/tlg-part-03a.b64             .bootstrap/tlg-part-03b.b64             .bootstrap/tlg-part-03c.b64             .bootstrap/tlg-part-04a.b64             .bootstrap/tlg-part-04b.b64             .bootstrap/tlg-part-04c.b64             .bootstrap/tlg-part-05.b64             | tr -d '\n\r ' | base64 -d > /tmp/TheLastGoodbyeAndroid.zip
+          unzip -oq /tmp/TheLastGoodbyeAndroid.zip -d mobile/TheLastGoodbyeAndroid
+          test -f mobile/TheLastGoodbyeAndroid/app/build.gradle
+
+      - name: Build Android APK
+        working-directory: mobile/TheLastGoodbyeAndroid
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Prepare memorial APK
+        shell: bash
+        run: |
+          mkdir -p mobile-releases
+          cp mobile/TheLastGoodbyeAndroid/app/build/outputs/apk/debug/app-debug.apk              mobile-releases/TheLastGoodbye-Monica-Brandon.apk
+          sha256sum mobile-releases/TheLastGoodbye-Monica-Brandon.apk              > mobile-releases/TheLastGoodbye-Monica-Brandon.apk.sha256
+
+      - name: Upload downloadable APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TheLastGoodbye-Monica-Brandon
+          path: |
+            mobile-releases/TheLastGoodbye-Monica-Brandon.apk
+            mobile-releases/TheLastGoodbye-Monica-Brandon.apk.sha256
+          retention-days: 90
+
+      - name: Publish source and APK to repository
+        shell: bash
+        run: |
+          rm -rf mobile/TheLastGoodbyeAndroid/app/build mobile/TheLastGoodbyeAndroid/.gradle
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mobile/TheLastGoodbyeAndroid mobile-releases
+          if git diff --cached --quiet; then
+            echo "Nothing new to commit."
+          else
+            git commit -m "Add The Last Goodbye Android memorial edition"
+            git push
+          fi
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          TAG="the-last-goodbye-android-v2.1-${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG"             mobile-releases/TheLastGoodbye-Monica-Brandon.apk             mobile-releases/TheLastGoodbye-Monica-Brandon.apk.sha256             --title "The Last Goodbye — Monica & Brandon Memorial Edition"             --notes "Android memorial edition dedicated to Monica Lee Gandara, in loving memory of her son Brandon Gandara. Built from The Last Goodbye and adapted for Android."
