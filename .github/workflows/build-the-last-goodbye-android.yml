@@ -63,21 +63,6 @@ jobs:
             mobile-releases/TheLastGoodbye-Monica-Brandon.apk.sha256
           retention-days: 90
 
-      - name: Publish source and APK to repository
-        shell: bash
-        run: |
-          rm -rf mobile/TheLastGoodbyeAndroid/app/build mobile/TheLastGoodbyeAndroid/.gradle
-          rm -rf .bootstrap
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A mobile/TheLastGoodbyeAndroid mobile-releases .bootstrap
-          if git diff --cached --quiet; then
-            echo "Nothing new to commit."
-          else
-            git commit -m "Publish The Last Goodbye Android memorial edition"
-            git push
-          fi
-
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
