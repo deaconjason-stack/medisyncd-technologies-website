@@ -23,6 +23,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 35 platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -61,13 +67,14 @@ jobs:
         shell: bash
         run: |
           rm -rf mobile/TheLastGoodbyeAndroid/app/build mobile/TheLastGoodbyeAndroid/.gradle
+          rm -rf .bootstrap
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add mobile/TheLastGoodbyeAndroid mobile-releases
+          git add -A mobile/TheLastGoodbyeAndroid mobile-releases .bootstrap
           if git diff --cached --quiet; then
             echo "Nothing new to commit."
           else
-            git commit -m "Add The Last Goodbye Android memorial edition"
+            git commit -m "Publish The Last Goodbye Android memorial edition"
             git push
           fi
 
