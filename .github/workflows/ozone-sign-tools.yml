@@ -33,7 +33,7 @@ jobs:
           cp "$BT/lib/apksigner.jar" ozone-sign-tools/
           cp "$BT/zipalign" ozone-sign-tools/
           ldd "$BT/zipalign" | tee ozone-sign-tools/zipalign-ldd.txt || true
-          sha256sum ozone-sign-tools/apksigner.jar ozone-sign-tools/zipalign > ozone-sign-tools/SHA256.txt
+          sha256sum ozone-sign-tools/apksigner.jar ozone-sign-tools/zipalign ozone-sign-tools/libc++.so > ozone-sign-tools/SHA256.txt
 
       - uses: actions/upload-artifact@v4
         with:
