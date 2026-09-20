@@ -1,0 +1,43 @@
+name: Export Android Signing Tools
+
+on:
+  push:
+    branches:
+      - ozone-v8-shell-build
+    paths:
+      - ".github/workflows/ozone-sign-tools.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export-tools:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Export Android build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$(command -v sdkmanager || true)"
+          if [ -z "$SDKMANAGER" ]; then
+            SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "build-tools;35.0.0"
+          BT="$ANDROID_HOME/build-tools/35.0.0"
+          mkdir -p ozone-sign-tools
+          cp "$BT/lib/apksigner.jar" ozone-sign-tools/
+          cp "$BT/zipalign" ozone-sign-tools/
+          ldd "$BT/zipalign" | tee ozone-sign-tools/zipalign-ldd.txt || true
+          sha256sum ozone-sign-tools/apksigner.jar ozone-sign-tools/zipalign > ozone-sign-tools/SHA256.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ozone-Android-Signing-Tools
+          path: ozone-sign-tools/
+          if-no-files-found: error
+          retention-days: 7
