@@ -32,6 +32,7 @@ jobs:
           mkdir -p ozone-sign-tools
           cp "$BT/lib/apksigner.jar" ozone-sign-tools/
           cp "$BT/zipalign" ozone-sign-tools/
+          cp "$BT/lib64/libc++.so" ozone-sign-tools/
           ldd "$BT/zipalign" | tee ozone-sign-tools/zipalign-ldd.txt || true
           sha256sum ozone-sign-tools/apksigner.jar ozone-sign-tools/zipalign ozone-sign-tools/libc++.so > ozone-sign-tools/SHA256.txt
 
