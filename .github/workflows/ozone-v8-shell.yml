@@ -1,4 +1,4 @@
-name: Build Ozone Sentinel Android Shell
+name: Build Ozone Sentinel Android Shell\n# Ozone V8 shell build trigger
 
 on:
   push:
