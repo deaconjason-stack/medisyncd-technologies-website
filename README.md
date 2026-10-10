@@ -18,3 +18,6 @@ Node.js 22+: `npm install`, then `npm run dev`. Run `npm run build` to produce `
 
 ## Safety
 This is only a demonstration: it has no login or server-side security, and it is not suitable for live patients. A real clinical service requires independently reviewed compliance, professional licensing, clinical oversight, appropriate BAAs, access controls, tenancy, security assessment, audit logs, incident response, informed consent, and operational safeguards.
+
+## Early practice-partner inquiry flow
+The `/partners` route offers a guided product-demo request for physicians, clinics and healthcare organizations. The form only gathers basic BUSINESS contact details and predefined interests, prepares a `mailto:` email to `deaconjason@medisyncdtechnologies.com`, and offers a copy-to-clipboard fallback. **No server receives a form submission; visitors must actually send the drafted email from their email application.** Nothing is automatically stored on the website. Do not send PHI by this email process. A true web-delivered form, CRM or scheduling service will require a separately approved provider, consent/privacy review, and abuse controls.

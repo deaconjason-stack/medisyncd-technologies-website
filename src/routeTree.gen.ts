@@ -15,6 +15,7 @@ import { Route as ClinicianWorkspaceRouteImport } from './routes/clinician-works
 import { Route as FindCareRouteImport } from './routes/find-care'
 import { Route as LaunchReadinessRouteImport } from './routes/launch-readiness'
 import { Route as PracticeManagementRouteImport } from './routes/practice-management'
+import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as VisitRoomRouteImport } from './routes/visit-room'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,11 @@ const PracticeManagementRoute = PracticeManagementRouteImport.update({
   path: '/practice-management',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnersRoute = PartnersRouteImport.update({
+  id: '/partners',
+  path: '/partners',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VisitRoomRoute = VisitRoomRouteImport.update({
   id: '/visit-room',
   path: '/visit-room',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/find-care': typeof FindCareRoute
   '/launch-readiness': typeof LaunchReadinessRoute
   '/practice-management': typeof PracticeManagementRoute
+  '/partners': typeof PartnersRoute
   '/visit-room': typeof VisitRoomRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/find-care': typeof FindCareRoute
   '/launch-readiness': typeof LaunchReadinessRoute
   '/practice-management': typeof PracticeManagementRoute
+  '/partners': typeof PartnersRoute
   '/visit-room': typeof VisitRoomRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/find-care': typeof FindCareRoute
   '/launch-readiness': typeof LaunchReadinessRoute
   '/practice-management': typeof PracticeManagementRoute
+  '/partners': typeof PartnersRoute
   '/visit-room': typeof VisitRoomRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/find-care'
     | '/launch-readiness'
     | '/practice-management'
+    | '/partners'
     | '/visit-room'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/find-care'
     | '/launch-readiness'
     | '/practice-management'
+    | '/partners'
     | '/visit-room'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/find-care'
     | '/launch-readiness'
     | '/practice-management'
+    | '/partners'
     | '/visit-room'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   FindCareRoute: typeof FindCareRoute
   LaunchReadinessRoute: typeof LaunchReadinessRoute
   PracticeManagementRoute: typeof PracticeManagementRoute
+  PartnersRoute: typeof PartnersRoute
   VisitRoomRoute: typeof VisitRoomRoute
 }
 
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PracticeManagementRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partners': {
+      id: '/partners'
+      path: '/partners'
+      fullPath: '/partners'
+      preLoaderRoute: typeof PartnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/visit-room': {
       id: '/visit-room'
       path: '/visit-room'
@@ -182,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   FindCareRoute: FindCareRoute,
   LaunchReadinessRoute: LaunchReadinessRoute,
   PracticeManagementRoute: PracticeManagementRoute,
+  PartnersRoute: PartnersRoute,
   VisitRoomRoute: VisitRoomRoute,
 }
 export const routeTree = rootRouteImport
