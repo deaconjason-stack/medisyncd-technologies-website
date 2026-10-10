@@ -1,0 +1,23 @@
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useState } from 'react';
+import { Stethoscope, ArrowRight, Check, CalendarDays } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { PageHeading, Status, SafetyNote } from '@/components/medisync/shared';
+import { providers, pageHead } from '@/lib/demo-data';
+import { useDemo } from '@/components/medisync/demo-context';
+export const Route = createFileRoute('/find-care')({ head: () => pageHead('Find Care', 'Explore three explicitly fictional clinicians and sample appointment slots. No real booking or clinical availability.'), component: FindCare });
+function FindCare() {
+  const [filter, setFilter] = useState('All care types');
+  const [selection, setSelection] = useState<{ providerId: string; time: string } | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
+  const { bookings, addBooking } = useDemo();
+  const selected = providers.find(p => p.id === selection?.providerId);
+  const filtered = providers.filter(p => filter === 'All care types' || p.specialty === filter);
+  return <><PageHeading eyebrow="MEDISYNCD VIRTUAL CARE" title="Find your connection to care" description="Explore fictional clinicians and try a sample booking. No real availability or medical services." />
+    <div className="filter-toolbar"><div className="segmented-control" role="group" aria-label="Filter care type">{['All care types', 'Primary care', 'Mental wellness', 'Dermatology'].map(type => <Button key={type} variant={filter === type ? 'soft' : 'ghost'} aria-pressed={filter === type} onClick={() => setFilter(type)}>{type}</Button>)}</div><span aria-live="polite">{filtered.length} fictional {filtered.length === 1 ? 'clinician' : 'clinicians'} · Sample availability</span></div>
+    <div className="provider-grid">{filtered.map(p => <article className="provider-card" key={p.id}><div className={`provider-avatar ${p.color}`}>{p.initials}</div><div><Status kind="demo">Fictional clinician</Status></div><h2>{p.name}</h2><p>{p.role}</p><div className="provider-specialty"><Stethoscope size={14} />{p.specialty}</div><div className="slot-heading">Sample slots · Demo day 1<small>Simulated times only. No real date or time zone.</small></div><div className="slot-grid">{p.slots.map(time => { const booked = bookings.some(b => b.providerId === p.id && b.time === time && b.day === 'Demo day 1'); return <Button key={time} variant="outline" disabled={booked} aria-label={`${booked ? 'Added' : 'Select sample slot'} ${time} with ${p.name}`} onClick={() => { setSelection({ providerId: p.id, time }); setConfirmed(false); }}>{booked ? <><Check size={12} />Added</> : time}</Button>; })}</div><div className="provider-disclaimer">Invented profile. No credentials, licensure, or provider authorization are represented.</div></article>)}</div>
+    <SafetyNote>This is not a medical service. Do not enter patient information. Sample appointments exist only in this browser session.</SafetyNote>
+    <Dialog open={!!selection} onOpenChange={open => { if (!open) setSelection(null); }}><DialogContent className="max-w-[calc(100%-32px)] sm:max-w-lg">{selected && selection && <>{confirmed && <div className="confirmation-icon"><Check /></div>}<DialogTitle>{confirmed ? 'Demo appointment added' : 'Confirm a sample appointment'}</DialogTitle><DialogDescription>{confirmed ? 'Your fictional booking is now in Patient Appointments. No clinician has been contacted and no real booking was made.' : 'This creates a fictional booking only. It does not reserve a real appointment or connect you to care.'}</DialogDescription><div className="dialog-details"><div><span>Fictional clinician</span><strong>{selected.name}</strong></div><div><span>Care type</span><strong>{selected.specialty}</strong></div><div><span>Simulated day</span><strong>Demo day 1</strong></div><div><span>Sample time</span><strong>{selection.time}</strong></div></div>{confirmed ? <div className="confirmation-actions"><Button asChild><Link to="/appointments" onClick={() => setSelection(null)}>View demo appointments <ArrowRight /></Link></Button><Button variant="outline" onClick={() => setSelection(null)}>Done</Button></div> : <div className="confirmation-actions"><Button onClick={() => { addBooking({ providerId: selected.id, time: selection.time, day: 'Demo day 1' }); setConfirmed(true); }}><CalendarDays />Confirm demo booking</Button><Button variant="outline" onClick={() => setSelection(null)}>Cancel</Button></div>}</>}</DialogContent></Dialog>
+  </>;
+}
