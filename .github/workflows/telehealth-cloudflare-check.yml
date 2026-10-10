@@ -1,0 +1,29 @@
+name: Telehealth Cloudflare build check
+on:
+  push:
+    branches: [telehealth-cloudflare-demo]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-demo-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated telehealth branch
+        uses: actions/checkout@v4
+      - name: Install Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned top-level dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build static Cloudflare Pages site
+        run: npm run build
+      - name: Verify output exists
+        run: |
+          test -s dist/index.html
+          test -d dist/assets
+          echo "Cloudflare Pages directory: dist"
