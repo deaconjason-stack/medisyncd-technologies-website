@@ -1,4 +1,4 @@
-# MediSyncD Creative & Digital Services — Launch Operations
+# MediSyncD Creative Studio — Launch Operations
 
 **Entity:** MediSyncD Technologies, LLC (existing business, not a separate company).  
 **Market:** St. Louis-area churches, nonprofits, small businesses, and entrepreneurs.  
@@ -12,7 +12,7 @@
 
 ## Inquiry flow
 1. Visitor submits a **prepared email** through the landing page, or messages "DESIGN" on a connected social platform. The current form uses mailto: it does NOT transmit to a server, create a record, or send email without the visitor pressing Send in their email application.
-2. Review replies in deaconjason@medisyncdtechnologies.com; Gmail label: `MediSyncD Creative Services / Leads`.
+2. Review replies in deaconjason@medisyncdtechnologies.com; Gmail label: `MediSyncD Creative Studio / Leads`.
 3. Qualify fit: non-sensitive work; clear deadline; client can provide all content and usage rights; no ongoing maintenance; no personal medical/child information; no high-risk regulated or clinical functionality; within available capacity.
 4. Request missing scope once; issue a **written quote** with deliverables, exact price, due date start trigger, two consolidated revisions, exclusions, any third-party license costs, client review deadlines and payment terms.
 5. Execute signed service agreement and SOW. Send an itemized PayPal invoice/deposit request through the approved business PayPal account; never invent a payment URL.
@@ -46,4 +46,12 @@ Subject: Thanks for contacting MediSyncD — a few project details
 
 Thank you for considering MediSyncD Technologies, LLC. We are reviewing a limited number of introductory flyer, brochure, and one-page website requests. Could you confirm the final content/assets you can provide, the required delivery date, and the intended use of the design? We will review the fit, then send a written quote and service agreement. No payment is due before you approve the quote and agreement.
 
-— MediSyncD Creative & Digital Services
+— MediSyncD Creative Studio
+
+## Branding and address
+- **Service name:** MediSyncD Creative Studio.
+- **Operating legal entity:** MediSyncD Technologies, LLC.
+- **Serving:** St. Louis, Missouri and surrounding communities. No street-level physical office address is represented or published.
+- **Customer contact:** deaconjason@medisyncdtechnologies.com.
+- **Canonical public name/address proposal:** `medisyncd-creative-studio.lovable.app`; NOT live until verified published. Repository path is `creative-studio/index.html` with legacy redirect from `creative-services/`.
+- **Publishing:** Do not use the old Lovable project before its copy and project title are corrected; free workspace editing currently blocked for lack of credits. No paid plan is authorized.
