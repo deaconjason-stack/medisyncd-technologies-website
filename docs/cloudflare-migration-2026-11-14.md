@@ -9,7 +9,7 @@ Move the public site away from IONOS website hosting to Cloudflare Pages while r
 - Static publication directory: \`site\`
 - Contents: \`index.html\`, \`privacy.html\`, \`404.html\`, \`favicon.svg\`, \`robots.txt\`, \`sitemap.xml\`, and Cloudflare Pages \`_headers\`.
 - No backend, tracking scripts, forms, payment flow, or private patient/student information.
-- The initial M favicon is a **placeholder**, not the company's approved final logo.
+- The header and favicon now embed an optimized version of the current company-owned MediSyncD gold shield logo; confirm final cropping/presentation during visual review.
 - Prior August 1 Next.js design summary is preserved; this static deployment is the urgent interim public website, not a completed Next.js implementation.
 
 ## Cloudflare Pages — publish before editing DNS
