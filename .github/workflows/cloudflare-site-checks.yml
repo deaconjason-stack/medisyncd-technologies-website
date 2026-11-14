@@ -1,0 +1,27 @@
+name: Cloudflare Website Static Checks
+
+on:
+  pull_request:
+    paths:
+      - 'site/**'
+      - 'scripts/site_smoke.py'
+      - '.github/workflows/cloudflare-site-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'scripts/site_smoke.py'
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out staged source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Validate static website
+        run: python3 scripts/site_smoke.py

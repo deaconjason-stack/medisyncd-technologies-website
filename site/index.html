@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071426">
+<meta name="description" content="MediSyncD Technologies, LLC is a Missouri technology company building accessible AI, STEM educational technology, digital health concepts and creative services.">
+<meta property="og:title" content="MediSyncD Technologies, LLC | Technology With Purpose">
+<meta property="og:description" content="Accessible AI, education, digital health innovation and creative services.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://medisyncdtechnologies.com/">
+<link rel="canonical" href="https://medisyncdtechnologies.com/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>MediSyncD Technologies, LLC | Technology With Purpose</title>
+<style>
+:root{color-scheme:dark;--bg:#071426;--surface:#0e2439;--ink:#eff8fc;--muted:#bdd2de;--teal:#50dfbe;--aqua:#8ceaf0;--line:#355169;--focus:#ffdf70}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.6}
+a{color:var(--aqua);text-underline-offset:3px}a:focus-visible{outline:3px solid var(--focus);outline-offset:4px}.skip{position:absolute;top:-90px;left:1rem;background:var(--focus);color:#051528;padding:.7rem 1rem;z-index:100}.skip:focus{top:1rem}
+.wrap{width:min(1120px,calc(100% - 2.5rem));margin:auto}header{background:#091b30;border-bottom:1px solid var(--line)}.top{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:84px;flex-wrap:wrap;padding:1rem 0}
+.brand{display:flex;gap:.8rem;align-items:center;text-decoration:none;color:#fff;font-weight:800;line-height:1.2}.brandmark{border:2px solid var(--teal);border-radius:13px;background:#0c3142;color:var(--teal);width:48px;height:48px;display:grid;place-items:center;font-weight:900;font-size:1.7rem}.brandmark-image{width:48px;height:48px;object-fit:contain;flex-shrink:0}.brand small{display:block;color:var(--muted);font-size:.72rem;letter-spacing:.13em;margin-top:3px}
+nav{display:flex;flex-wrap:wrap;gap:1rem 1.3rem}nav a{text-decoration:none;color:#e8f3fa;font-weight:650}nav a:hover{text-decoration:underline}
+.hero{position:relative;overflow:hidden;background:radial-gradient(circle at 85% 20%,#15546b,transparent 42%),linear-gradient(120deg,#091f35,#071426 70%);padding:6rem 0 5rem}.hero:after{content:"";position:absolute;right:-12rem;top:2rem;width:36rem;height:36rem;border:1px solid #387c90;border-radius:50%;box-shadow:0 0 0 55px #14394b35,0 0 0 110px #13384c23;pointer-events:none}.hero .wrap{position:relative;z-index:1}.hero-content{max-width:775px}
+.eyebrow{text-transform:uppercase;letter-spacing:.16em;color:var(--teal);font-size:.8rem;font-weight:800;margin:0 0 .8rem}h1{font-size:clamp(2.5rem,6vw,5rem);line-height:1.1;letter-spacing:-.055em;margin:.2rem 0 1.35rem}h1 em{color:var(--teal);font-style:normal}.lead{font-size:clamp(1.07rem,2.3vw,1.32rem);max-width:660px;color:#d4e7ef;line-height:1.7}
+.actions{display:flex;gap:.85rem;flex-wrap:wrap;margin-top:1.8rem}.button{display:inline-block;background:var(--teal);color:#04272c;font-weight:800;text-decoration:none;border:1px solid var(--teal);border-radius:10px;padding:.78rem 1.2rem}.button:hover{background:#a6f5df}.button.alt{background:transparent;border-color:#7195aa;color:#eff8fc}.button.alt:hover{background:#18374c}
+section{padding:4.8rem 0}section.alternate{background:#0a1d31}.heading{font-size:clamp(1.8rem,3vw,2.55rem);line-height:1.2;letter-spacing:-.03em;margin:.1rem 0 .7rem}.intro{max-width:740px;color:var(--muted);margin:0 0 2rem}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem}.card{border:1px solid var(--line);border-radius:15px;background:linear-gradient(170deg,#10283e,#0c2237);padding:1.5rem;min-width:0}.card h3{font-size:1.3rem;line-height:1.3;margin:.7rem 0}.card p{color:var(--muted)}.tag{display:inline-block;border:1px solid #3c816f;border-radius:99px;padding:.2rem .65rem;font-size:.75rem;font-weight:800;color:var(--teal)}.card a{font-weight:750}
+.two{display:grid;grid-template-columns:1.2fr 1fr;gap:2.6rem;align-items:center}.quote{padding:2rem;border-left:4px solid var(--teal);background:#122a42;border-radius:0 12px 12px 0;font-size:1.2rem}.quote strong{display:block;color:var(--teal);font-size:.9rem;margin-top:1rem}.offer{display:flex;justify-content:space-between;gap:1rem;border-top:1px solid var(--line);padding:.75rem 0}.offer:first-child{border:0}.offer span{color:#c4d9e7}.offer strong{white-space:nowrap}
+.contact{border:1px solid #3b7b88;background:linear-gradient(125deg,#0f4052,#11293f);border-radius:20px;padding:clamp(1.5rem,4vw,3rem)}.contact p{max-width:730px;color:#e0f3f7}.contact a{overflow-wrap:anywhere}
+footer{border-top:1px solid var(--line);padding:2rem 0;color:var(--muted);font-size:.85rem}.foot{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+@media(max-width:800px){.cards{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.hero{padding:4.4rem 0}.hero:after{opacity:.2}.top{justify-content:center;text-align:center}nav{justify-content:center}}
+@media(max-width:570px){.wrap{width:calc(100% - 2rem)}.cards{grid-template-columns:1fr}.top{justify-content:flex-start;text-align:left}nav{gap:.7rem 1rem}.hero{padding:3.5rem 0}section{padding:3.5rem 0}.offer{font-size:.92rem}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header><div class="wrap top"><a class="brand" href="#top" aria-label="MediSyncD Technologies home"><img class="brandmark-image" src="/medisyncd-shield.svg" width="48" height="48" alt="" aria-hidden="true"><span>MediSyncD Technologies<small>MISSOURI • UNITED STATES</small></span></a>
+<nav aria-label="Main navigation"><a href="#solutions">Our Work</a><a href="#mission">Our Mission</a><a href="#studio">Creative Studio</a><a href="#contact">Contact</a></nav></div></header>
+<main id="main">
+<div class="hero" id="top"><div class="wrap"><div class="hero-content">
+<p class="eyebrow">MediSyncD Technologies, LLC</p>
+<h1>Technology with <em>purpose.</em><br>Innovation for people.</h1>
+<p class="lead">We are a Missouri-based technology company building more accessible artificial intelligence, educational experiences, and digital solutions for the communities we serve.</p>
+<div class="actions"><a class="button" href="#solutions">Explore Our Work</a><a class="button alt" href="mailto:deaconjason@medisyncdtechnologies.com?subject=MediSyncD%20Business%20Inquiry">Partner With Us</a></div>
+</div></div></div>
+<section id="solutions" aria-labelledby="solutions-title"><div class="wrap">
+<p class="eyebrow">What we are building</p><h2 class="heading" id="solutions-title">Technology across care, learning, and everyday life</h2><p class="intro">Our portfolio combines practical innovation with a people-first approach. Product capabilities and availability vary as development and testing continue.</p>
+<div class="cards">
+<article class="card"><span class="tag">AI • In development</span><h3>Domonique 2.0</h3><p>An AI assistant platform being developed around individualized interaction, authenticated profiles, privacy, and reliable access to helpful tools.</p><a href="#contact">Ask about collaboration</a></article>
+<article class="card"><span class="tag">Education • Active program</span><h3>Ellie’s FutureMinds Academy</h3><p>Affordable, adaptive STEM learning designed to help each child learn in a way that works for them, with accessibility and family involvement at the center.</p><a href="https://elliesfuturemindsacademy.com/" target="_blank" rel="noopener noreferrer">Visit Ellie’s Academy</a></article>
+<article class="card"><span class="tag">Digital health • In development</span><h3>NutribridgD</h3><p>An emerging digital-health initiative exploring practical ways technology can support nutrition education and better-informed everyday decisions.</p><a href="#contact">Learn about the vision</a></article>
+</div></div></section>
+<section id="mission" class="alternate" aria-labelledby="mission-title"><div class="wrap two">
+<div><p class="eyebrow">Why we exist</p><h2 class="heading" id="mission-title">Human-centered technology, guided by real experience</h2><p>Founded by a nurse with firsthand experience in long-term care, MediSyncD Technologies is committed to tools that respect the people using them.</p><p>Our work emphasizes accessibility, thoughtful safeguards, and affordability. We seek partners, reviewers, pilot opportunities, and collaborators who share those goals.</p></div>
+<aside class="quote">“Technology should strengthen compassion, not replace it.”<strong>Our guiding philosophy</strong></aside>
+</div></section>
+<section id="studio" aria-labelledby="studio-title"><div class="wrap two">
+<div><p class="eyebrow">Business services</p><h2 class="heading" id="studio-title">MediSyncD Creative Studio</h2><p class="intro">Professional digital design for churches, small businesses, nonprofits, and entrepreneurs. All projects have written scopes and deliverables.</p><a class="button" href="mailto:deaconjason@medisyncdtechnologies.com?subject=Creative%20Studio%20Project%20Inquiry">Request a Project Quote</a></div>
+<div class="card" aria-label="Creative Studio starting prices"><div class="offer"><span>Digital flyers</span><strong>From $79</strong></div><div class="offer"><span>Tri-fold brochures</span><strong>From $199</strong></div><div class="offer"><span>One-page websites</span><strong>From $549</strong></div><p style="font-size:.9rem">Final pricing depends on scope. Standard written scopes include two consolidated revision rounds.</p></div>
+</div></section>
+<section id="contact" class="alternate" aria-labelledby="contact-title"><div class="wrap"><div class="contact">
+<p class="eyebrow">Get in touch</p><h2 class="heading" id="contact-title">Let’s build something that matters.</h2><p>Have a partnership opportunity, a question about our work, or a creative project? We welcome thoughtful inquiries.</p>
+<p><strong>Email:</strong> <a href="mailto:deaconjason@medisyncdtechnologies.com">deaconjason@medisyncdtechnologies.com</a></p>
+<p><strong>Phone:</strong> <a href="tel:+13142201274">(314) 220-1274</a></p>
+<a class="button" href="mailto:deaconjason@medisyncdtechnologies.com?subject=Business%20Inquiry">Email MediSyncD</a>
+</div></div></section>
+</main>
+<footer><div class="wrap foot"><span>© 2026 MediSyncD Technologies, LLC. All rights reserved.</span><span>Missouri-based • <a href="/privacy.html">Website Privacy</a></span></div></footer>
+</body></html>
