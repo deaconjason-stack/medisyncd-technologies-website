@@ -17,7 +17,7 @@
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.6}
 a{color:var(--aqua);text-underline-offset:3px}a:focus-visible{outline:3px solid var(--focus);outline-offset:4px}.skip{position:absolute;top:-90px;left:1rem;background:var(--focus);color:#051528;padding:.7rem 1rem;z-index:100}.skip:focus{top:1rem}
 .wrap{width:min(1120px,calc(100% - 2.5rem));margin:auto}header{background:#091b30;border-bottom:1px solid var(--line)}.top{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:84px;flex-wrap:wrap;padding:1rem 0}
-.brand{display:flex;gap:.8rem;align-items:center;text-decoration:none;color:#fff;font-weight:800;line-height:1.2}.brandmark{border:2px solid var(--teal);border-radius:13px;background:#0c3142;color:var(--teal);width:48px;height:48px;display:grid;place-items:center;font-weight:900;font-size:1.7rem}.brand small{display:block;color:var(--muted);font-size:.72rem;letter-spacing:.13em;margin-top:3px}
+.brand{display:flex;gap:.8rem;align-items:center;text-decoration:none;color:#fff;font-weight:800;line-height:1.2}.brandmark{border:2px solid var(--teal);border-radius:13px;background:#0c3142;color:var(--teal);width:48px;height:48px;display:grid;place-items:center;font-weight:900;font-size:1.7rem}.brandmark-image{width:48px;height:48px;object-fit:contain;flex-shrink:0}.brand small{display:block;color:var(--muted);font-size:.72rem;letter-spacing:.13em;margin-top:3px}
 nav{display:flex;flex-wrap:wrap;gap:1rem 1.3rem}nav a{text-decoration:none;color:#e8f3fa;font-weight:650}nav a:hover{text-decoration:underline}
 .hero{position:relative;overflow:hidden;background:radial-gradient(circle at 85% 20%,#15546b,transparent 42%),linear-gradient(120deg,#091f35,#071426 70%);padding:6rem 0 5rem}.hero:after{content:"";position:absolute;right:-12rem;top:2rem;width:36rem;height:36rem;border:1px solid #387c90;border-radius:50%;box-shadow:0 0 0 55px #14394b35,0 0 0 110px #13384c23;pointer-events:none}.hero .wrap{position:relative;z-index:1}.hero-content{max-width:775px}
 .eyebrow{text-transform:uppercase;letter-spacing:.16em;color:var(--teal);font-size:.8rem;font-weight:800;margin:0 0 .8rem}h1{font-size:clamp(2.5rem,6vw,5rem);line-height:1.1;letter-spacing:-.055em;margin:.2rem 0 1.35rem}h1 em{color:var(--teal);font-style:normal}.lead{font-size:clamp(1.07rem,2.3vw,1.32rem);max-width:660px;color:#d4e7ef;line-height:1.7}
@@ -33,7 +33,7 @@ footer{border-top:1px solid var(--line);padding:2rem 0;color:var(--muted);font-s
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
-<header><div class="wrap top"><a class="brand" href="#top" aria-label="MediSyncD Technologies home"><span class="brandmark" aria-hidden="true">M</span><span>MediSyncD Technologies<small>MISSOURI • UNITED STATES</small></span></a>
+<header><div class="wrap top"><a class="brand" href="#top" aria-label="MediSyncD Technologies home"><img class="brandmark-image" src="/medisyncd-shield.svg" width="48" height="48" alt="" aria-hidden="true"><span>MediSyncD Technologies<small>MISSOURI • UNITED STATES</small></span></a>
 <nav aria-label="Main navigation"><a href="#solutions">Our Work</a><a href="#mission">Our Mission</a><a href="#studio">Creative Studio</a><a href="#contact">Contact</a></nav></div></header>
 <main id="main">
 <div class="hero" id="top"><div class="wrap"><div class="hero-content">
